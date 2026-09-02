@@ -251,29 +251,26 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   Future<void> _pickVideo() async {
     await _pickFile(
-      type: FileType.custom,
-      allowedExtensions: ['mp4', 'avi', 'mov'],
+      type: FileType.video,
       isVideo: true,
     );
   }
 
   Future<void> _pickAudio() async {
     await _pickFile(
-      type: FileType.custom,
-      allowedExtensions: ['mp3', 'wav', 'aac'],
+      type: FileType.audio,
       isVideo: false,
     );
   }
 
   Future<void> _pickFile({
     required FileType type,
-    required List<String> allowedExtensions,
     required bool isVideo,
   }) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: type,
-        allowedExtensions: allowedExtensions,
+        allowMultiple: false,
       );
 
       if (result != null && result.files.isNotEmpty) {

@@ -103,14 +103,21 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   Widget build(BuildContext context) {
     final fileName = Uri.decodeFull(widget.audioUrl.split('/').last);
     final isPlaying = _playerState == PlayerState.playing;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF1E293B) : Colors.blueGrey.shade50;
+    final borderColor = isDark ? const Color(0xFF334155) : Colors.blueGrey.shade100;
+    final iconBg = isDark ? const Color(0xFF334155) : Colors.blueGrey.shade100;
+    final iconColor = isDark ? const Color(0xFF818CF8) : Colors.blueGrey.shade700;
+    final textColor = isDark ? const Color(0xFFF8FAFC) : Colors.blueGrey.shade800;
+    final timeColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blueGrey.shade50,
+        color: bg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blueGrey.shade100, width: 1),
+        border: Border.all(color: borderColor, width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -127,12 +134,12 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey.shade100,
+                  color: iconBg,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.audiotrack,
-                  color: Colors.blueGrey.shade700,
+                  color: iconColor,
                   size: 20,
                 ),
               ),
@@ -145,7 +152,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: Colors.blueGrey.shade800,
+                    color: textColor,
                   ),
                 ),
               ),
@@ -165,7 +172,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                       )
                     : Icon(
                         isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                        color: Colors.teal.shade600,
+                        color: isDark ? const Color(0xFF818CF8) : Colors.teal.shade600,
                       ),
                 onPressed: _isLoading ? null : _togglePlayback,
               ),
@@ -175,9 +182,9 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                     SliderTheme(
                       data: SliderThemeData(
                         trackHeight: 3.0,
-                        activeTrackColor: Colors.teal.shade400,
-                        inactiveTrackColor: Colors.grey.shade300,
-                        thumbColor: Colors.teal.shade700,
+                        activeTrackColor: isDark ? const Color(0xFF818CF8) : Colors.teal.shade400,
+                        inactiveTrackColor: isDark ? const Color(0xFF334155) : Colors.grey.shade300,
+                        thumbColor: isDark ? const Color(0xFFC7D2FE) : Colors.teal.shade700,
                         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
                         overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
                       ),
@@ -200,11 +207,11 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                         children: [
                           Text(
                             _formatDuration(_position),
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                            style: TextStyle(fontSize: 11, color: timeColor),
                           ),
                           Text(
                             _formatDuration(_duration),
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                            style: TextStyle(fontSize: 11, color: timeColor),
                           ),
                         ],
                       ),

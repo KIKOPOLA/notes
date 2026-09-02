@@ -158,10 +158,10 @@ class NoteService {
       }
 
       final extension = file.extension?.toLowerCase();
-      final bucket =
-          (extension == 'mp4' || extension == 'avi' || extension == 'mov')
-              ? _videoBucket
-              : _audioBucket;
+      final isVideo = [
+        'mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v'
+      ].contains(extension);
+      final bucket = isVideo ? _videoBucket : _audioBucket;
 
       await supabase.storage
           .from(bucket)
@@ -252,10 +252,10 @@ class NoteService {
       if (url == null || filePath == null) return null;
 
       final extension = file.extension?.toLowerCase();
-      final mediaType =
-          (extension == 'mp4' || extension == 'avi' || extension == 'mov')
-              ? 'video'
-              : 'audio';
+      final isVideo = [
+        'mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v'
+      ].contains(extension);
+      final mediaType = isVideo ? 'video' : 'audio';
 
       final duration = await getMediaDuration(file, mediaType);
 
