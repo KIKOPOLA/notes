@@ -1,23 +1,10 @@
-// Widget reusable untuk menampilkan kondisi kosong (empty state) di seluruh aplikasi.
-// Digunakan saat daftar catatan kosong atau hasil pencarian tidak ditemukan.
-// Menampilkan ikon besar di dalam lingkaran, judul, dan pesan deskriptif secara terpusat.
-
 import 'package:flutter/material.dart';
 
 class EmptyStateWidget extends StatelessWidget {
-  // Ikon yang akan ditampilkan di dalam lingkaran (wajib diisi)
   final IconData icon;
-
-  // Judul singkat yang menjelaskan kondisi kosong (wajib diisi)
   final String title;
-
-  // Pesan penjelas yang lebih detail untuk memandu pengguna (wajib diisi)
   final String message;
-
-  // Warna ikon — opsional, default menggunakan warna indigo
   final Color? iconColor;
-
-  // Warna latar lingkaran ikon — opsional, default menggunakan warna indigo tipis
   final Color? circleColor;
 
   const EmptyStateWidget({
@@ -37,7 +24,6 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Lingkaran dekoratif yang membungkus ikon utama
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -46,13 +32,11 @@ class EmptyStateWidget extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                size: 64,
+                size: 56,
                 color: iconColor ?? Colors.indigo.shade400,
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Teks judul utama kondisi kosong
+            const SizedBox(height: 20),
             Text(
               title,
               style: TextStyle(
@@ -62,8 +46,6 @@ class EmptyStateWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Teks pesan penjelas untuk memandu pengguna
             Text(
               message,
               textAlign: TextAlign.center,

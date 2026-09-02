@@ -1,8 +1,5 @@
-// Halaman pertama (landing page) untuk menyambut pengguna
-// Berisi daftar fitur aplikasi dan tombol untuk mulai
-
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Halaman login
+import 'login_page.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -12,7 +9,6 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Desain latar belakang menggunakan gradien warna biru ke ungu
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -26,121 +22,116 @@ class LandingPage extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 28.0,
-              vertical: 24.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Spacer(),
-                // Ikon logo dekoratif aplikasi
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.note_alt_rounded,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Judul utama aplikasi
-                const Text(
-                  'NOTES',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 3,
-                    color: Colors.white,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Slogan aplikasi
-                Text(
-                  'Minimal. Powerful. Yours.',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.indigo.shade100,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                // Daftar fitur utama aplikasi dengan desain efek kaca (glassmorphism)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.12),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildFeatureRow(
-                        Icons.bolt,
-                        'Catatan Instan',
-                        'Tulis ide Anda secepat kilat dengan teks kaya (Rich Text).',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildFeatureRow(
-                        Icons.audiotrack,
-                        'Media Lengkap',
-                        'Masukkan audio MP3, video, atau gambar di dalam catatan.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildFeatureRow(
-                        Icons.cloud_done,
-                        'Sinkronisasi Aman',
-                        'Tersinkronisasi otomatis dengan cloud melalui Supabase.',
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                // Tombol "Mulai Sekarang" untuk navigasi ke halaman login
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.indigo.shade900,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
+                      child: const Icon(
+                        Icons.note_alt_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
-                    onPressed: () {
-                      Navigator.pushNamed(context, LoginPage.routeName);
-                    },
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Mulai Sekarang',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                    const SizedBox(height: 24),
+                    const Text(
+                      'NOTES',
+                      style: TextStyle(
+                        fontSize: 46,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.5,
+                        color: Colors.white,
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Minimal. Powerful. Yours.',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.indigo.shade100,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildFeatureRow(
+                            Icons.bolt,
+                            'Catatan Instan',
+                            'Tulis ide Anda secepat kilat dengan teks kaya (Rich Text).',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureRow(
+                            Icons.audiotrack,
+                            'Media Lengkap',
+                            'Masukkan audio MP3, video, atau gambar di dalam catatan.',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureRow(
+                            Icons.cloud_done,
+                            'Sinkronisasi Aman',
+                            'Tersinkronisasi otomatis dengan cloud melalui Supabase.',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.indigo.shade900,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, size: 18),
-                      ],
+                        onPressed: () {
+                          Navigator.pushNamed(context, LoginPage.routeName);
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Mulai Sekarang',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward, size: 18),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
           ),
         ),
@@ -148,7 +139,6 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  // Widget pembantu untuk menampilkan baris fitur beserta ikon dan deskripsinya
   Widget _buildFeatureRow(IconData icon, String title, String desc) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +162,7 @@ class LandingPage extends StatelessWidget {
                 desc,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.indigo.shade100.withOpacity(0.8),
+                  color: Colors.indigo.shade100.withValues(alpha: 0.8),
                   height: 1.3,
                 ),
               ),

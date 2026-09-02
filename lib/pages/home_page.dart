@@ -1,9 +1,5 @@
-// Halaman beranda (HomePage) bertindak sebagai layar utama aplikasi.
-// Halaman ini bertanggung jawab untuk menampilkan daftar seluruh catatan pengguna yang aktif,
-// menyediakan fungsi pencarian real-time, menampilkan sapaan dinamis berdasarkan waktu,
-// serta memberikan akses cepat untuk menambah catatan baru atau menavigasi ke halaman lain.
-
 import 'package:flutter/material.dart';
+import '../config/theme_manager.dart';
 import '../services/auth_service.dart';
 import '../services/note_service.dart';
 import '../models/note_model.dart';
@@ -42,17 +38,10 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // Mengambil daftar catatan dari database melalui NoteService.
-  // Parameter includeArchived diatur ke false agar hanya catatan aktif (tidak diarsipkan) yang dimuat.
-  // Hasil dari fungsi ini akan mengisi variabel 'notes' yang nantinya digunakan oleh FutureBuilder.
   Future<List<Map<String, dynamic>>> _loadNotes() async {
-    final allNotes = await noteService.getNotes(isArchived: false);
-    debugPrint('Loaded ${allNotes.length} notes from database');
-    return allNotes;
+    return await noteService.getNotes(isArchived: false);
   }
 
-  // Mengembalikan teks sapaan yang dinamis berdasarkan jam saat ini di perangkat pengguna.
-  // Fungsi ini membagi hari menjadi 4 segmen: pagi (< 11), siang (< 15), sore (< 19), dan malam.
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 11) return 'Selamat Pagi ☀️';
@@ -64,9 +53,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final user = authService.getCurrentUser();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF334155) : Colors.grey.shade200;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -77,9 +68,6 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Bagian header yang menampilkan sapaan dinamis, judul halaman,
-                      // serta avatar pengguna di sebelah kanan.
-                      // Avatar ini bisa ditekan (tappable) untuk menavigasi pengguna ke halaman Profil.
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -91,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade500,
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -101,57 +89,74 @@ class _HomePageState extends State<HomePage> {
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey.shade900,
+                                  color: isDark ? Colors.white : Colors.grey.shade900,
                                   letterSpacing: -0.5,
                                 ),
                               ),
                             ],
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                ProfilePage.routeName,
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.indigo.shade200,
-                                  width: 2,
+                          Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: borderColor),
+                                ),
+                                child: IconButton(
+                                  icon: Icon(
+                                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                                    color: isDark ? Colors.amber : Colors.indigo.shade600,
+                                    size: 20,
+                                  ),
+                                  tooltip: isDark ? 'Mode Terang' : 'Mode Gelap',
+                                  onPressed: () {
+                                    ThemeManager.instance.toggleTheme();
+                                  },
                                 ),
                               ),
-                              child: CircleAvatar(
-                                radius: 22,
-                                backgroundColor: Colors.indigo.shade50,
-                                child: Text(
-                                  user?.email != null && user!.email!.isNotEmpty
-                                      ? user.email![0].toUpperCase()
-                                      : 'U',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo.shade700,
-                                    fontSize: 16,
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(context, ProfilePage.routeName);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isDark ? Colors.indigo.shade400 : Colors.indigo.shade200,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: isDark ? Colors.indigo.shade900 : Colors.indigo.shade50,
+                                    child: Text(
+                                      user?.email != null && user!.email!.isNotEmpty
+                                          ? user.email![0].toUpperCase()
+                                          : 'U',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark ? Colors.indigo.shade200 : Colors.indigo.shade700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-
-                      // TextField untuk input pencarian yang diperbarui secara real-time.
-                      // Setiap kali teks berubah, fungsi onChanged akan memperbarui state '_searchQuery',
-                      // yang kemudian memicu render ulang untuk menyaring daftar catatan yang ditampilkan.
+                      const SizedBox(height: 18),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardColor,
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
+                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
                               blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
@@ -167,18 +172,18 @@ class _HomePageState extends State<HomePage> {
                           decoration: InputDecoration(
                             hintText: 'Cari judul atau isi catatan...',
                             hintStyle: TextStyle(
-                              color: Colors.grey.shade400,
+                              color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
                               fontSize: 14,
                             ),
                             prefixIcon: Icon(
                               Icons.search_rounded,
-                              color: Colors.grey.shade400,
+                              color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
                             ),
                             suffixIcon: _searchQuery.isNotEmpty
                                 ? IconButton(
                                     icon: Icon(
                                       Icons.clear_rounded,
-                                      color: Colors.grey.shade400,
+                                      color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
                                     ),
                                     onPressed: () {
                                       _searchController.clear();
@@ -224,9 +229,6 @@ class _HomePageState extends State<HomePage> {
 
               final notesList = snapshot.data ?? [];
 
-              // Menerapkan filter pada daftar catatan berdasarkan query pencarian pengguna.
-              // Pemeriksaan dilakukan secara case-insensitive (huruf kecil semua) pada bagian judul (title)
-              // maupun pada isi catatan (plainTextContent) agar hasil pencarian lebih akurat.
               final filteredList = notesList.where((noteData) {
                 final note = NoteModel.fromJson(noteData);
                 final query = _searchQuery.toLowerCase();
@@ -251,11 +253,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      // Floating Action Button (FAB) terletak di sudut kanan bawah layar.
-      // Saat ditekan, tombol ini akan membuka halaman NoteEditorPage untuk membuat catatan baru.
-      // Jika pengguna kembali dari halaman editor, daftar catatan akan dimuat ulang untuk mengambil data terbaru.
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.indigo.shade600,
+        backgroundColor: isDark ? const Color(0xFF6366F1) : const Color(0xFF4F46E5),
         foregroundColor: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -268,15 +267,13 @@ class _HomePageState extends State<HomePage> {
         },
         child: const Icon(Icons.add_rounded, size: 28),
       ),
-      // Bottom Navigation Bar khusus yang berisi ikon untuk navigasi utama.
-      // Tab yang tersedia adalah: Catatan (aktif), Arsip, dan Profil.
-      // Navigasi ke halaman Arsip menggunakan mekanisme push, sehingga jika kembali, catatan utama dimuat ulang.
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
+          border: Border(top: BorderSide(color: borderColor)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.03),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -299,9 +296,7 @@ class _HomePageState extends State<HomePage> {
                   label: 'Arsip',
                   isActive: false,
                   onTap: () {
-                    Navigator.pushNamed(context, ArchivePage.routeName).then((
-                      _,
-                    ) {
+                    Navigator.pushNamed(context, ArchivePage.routeName).then((_) {
                       setState(() {
                         notes = _loadNotes();
                       });
@@ -324,12 +319,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Navigasi untuk membuka halaman detail catatan yang diklik.
-  // Mengirim objek NoteModel sebagai argumen ke rute '/viewer'.
-  // Jika ada perubahan (misal catatan dihapus atau diubah di viewer), daftar akan di-refresh saat kembali.
   void _openNoteViewer(NoteModel note) {
     Navigator.pushNamed(context, '/viewer', arguments: note).then((result) {
-      if (result == true) {
+      if (result == true && mounted) {
         setState(() {
           notes = _loadNotes();
         });
@@ -337,9 +329,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // Widget placeholder yang ditampilkan saat tidak ada data catatan yang bisa dimuat,
-  // atau saat hasil pencarian dari query pengguna tidak menemukan satupun kecocokan.
-  // Tampilan dibedakan antara state pencarian kosong dan state akun yang belum punya catatan.
   Widget _buildEmptyState({required bool isSearch}) {
     return EmptyStateWidget(
       icon: isSearch ? Icons.search_off_rounded : Icons.edit_note_rounded,
@@ -350,17 +339,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Helper widget untuk membangun setiap item (tombol) di dalam bottom navigation bar.
-  // Menerima parameter ikon, label teks, status aktif/tidaknya tab, serta fungsi callback onTap.
-  // Menggunakan InkWell untuk memberikan efek ripple saat tombol ditekan.
   Widget _buildNavItem({
     required IconData icon,
     required String label,
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    final activeColor = Colors.indigo.shade600;
-    final inactiveColor = Colors.grey.shade400;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5);
+    final inactiveColor = isDark ? Colors.grey.shade500 : Colors.grey.shade400;
 
     return Material(
       color: Colors.transparent,

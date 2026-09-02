@@ -1,15 +1,8 @@
-// Halaman NoteViewerPage berfungsi sebagai antarmuka read-only (mode baca) untuk catatan pengguna.
-// Halaman ini menampilkan isi penuh dari catatan tanpa kontrol pengeditan agar pengguna bisa
-// membaca konten dengan nyaman, namun menyediakan tombol navigasi jika ingin mengubah isi catatan.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import '../models/note_model.dart';
 import '../widgets/editor/custom_embeds.dart';
 
-
-// State utama untuk halaman pembaca catatan yang menerima objek NoteModel melalui routing arguments.
-// Di dalamnya, teks diformat dan dirender menggunakan QuillEditor dengan konfigurasi readOnly: true.
 class NoteViewerPage extends StatefulWidget {
   const NoteViewerPage({super.key});
 
@@ -47,77 +40,6 @@ class _NoteViewerPageState extends State<NoteViewerPage> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (note == null) {
-      return const Scaffold(
-        body: Center(child: Text('Catatan tidak ditemukan')),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(note!.title),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () async {
-              final result = await Navigator.pushNamed(
-                context,
-                '/editor',
-                arguments: note,
-              );
-              if (result == true && context.mounted) {
-                // Pop kembali ke home agar data ter-refresh
-                Navigator.pop(context, true);
-              }
-            },
-            tooltip: 'Edit',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              note!.title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _formatDate(note!.createdAt),
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            QuillEditor(
-              controller: _controller!,
-              scrollController: _scrollController,
-              focusNode: _focusNode,
-              config: QuillEditorConfig(
-                scrollable: false,
-                autoFocus: false,
-                showCursor: false,
-                embedBuilders: [
-                  ImageEmbedBuilder(isReadOnly: true),
-                  VideoEmbedBuilder(isReadOnly: true),
-                  AudioEmbedBuilder(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Fungsi utilitas untuk memformat objek DateTime menjadi teks (string) yang ramah pengguna.
-  // Membandingkan waktu pembuatan catatan dengan waktu sekarang untuk menampilkan teks relatif
-  // seperti 'Dibuat hari ini', 'Dibuat kemarin', atau format tanggal penuh jika lebih dari seminggu.
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -131,5 +53,81 @@ class _NoteViewerPageState extends State<NoteViewerPage> {
     } else {
       return 'Dibuat pada ${date.day}/${date.month}/${date.year}';
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (note == null) {
+      return const Scaffold(
+        body: Center(child: Text('Catatan tidak ditemukan')),
+      );
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          note!.title.isEmpty ? 'Detail Catatan' : note!.title,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: isDark ? Colors.grey.shade300 : Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              final result = await navigator.pushNamed(
+                '/editor',
+                arguments: note,
+              );
+              if (result == true && mounted) {
+                navigator.pop(true);
+              }
+            },
+            tooltip: 'Edit Catatan',
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                note!.title.isEmpty ? 'Tanpa Judul' : note!.title,
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _formatDate(note!.createdAt),
+                style: TextStyle(fontSize: 13, color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
+              ),
+              const SizedBox(height: 20),
+              QuillEditor(
+                controller: _controller!,
+                scrollController: _scrollController,
+                focusNode: _focusNode,
+                config: QuillEditorConfig(
+                  scrollable: false,
+                  autoFocus: false,
+                  showCursor: false,
+                  embedBuilders: [
+                    ImageEmbedBuilder(isReadOnly: true),
+                    VideoEmbedBuilder(isReadOnly: true),
+                    AudioEmbedBuilder(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

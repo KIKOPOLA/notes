@@ -1,21 +1,10 @@
-// Widget kartu (Card) untuk menampilkan pratinjau satu catatan di daftar beranda atau arsip.
-// Menampilkan judul, cuplikan isi teks, thumbnail gambar (jika ada), badge media,
-// serta tombol untuk mengarsipkan atau mengembalikan catatan dari arsip.
-
 import 'package:flutter/material.dart';
 import '../models/note_model.dart';
 import '../services/note_service.dart';
 
-
 class NoteCard extends StatefulWidget {
-  // Data catatan yang akan ditampilkan di kartu ini
   final NoteModel note;
-
-  // Callback saat kartu ditekan — biasanya membuka halaman detail/viewer
   final VoidCallback? onTap;
-
-  // Callback yang dipanggil setelah status arsip berhasil diubah,
-  // agar halaman induk dapat memuat ulang daftar catatan
   final VoidCallback? onArchiveToggle;
 
   const NoteCard({
@@ -30,20 +19,17 @@ class NoteCard extends StatefulWidget {
 }
 
 class _NoteCardState extends State<NoteCard> {
-  final noteService = NoteService(); // Service untuk operasi arsip/unarsip ke database
+  final noteService = NoteService();
+  bool _isHovered = false;
 
-  bool _isHovered = false; // Menandai apakah kursor mouse sedang berada di atas kartu (untuk efek hover)
-
-  // Helper widget untuk membuat badge/label kecil yang menampilkan ikon dan teks.
-  // Digunakan untuk badge 'Arsip', 'Audio', dan 'Video' di bagian bawah kartu.
   Widget _buildBadge({
     required IconData icon,
     required String label,
-    required Color color,    // Warna teks dan ikon
-    required Color bgColor,  // Warna latar belakang badge
+    required Color color,
+    required Color bgColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
@@ -66,8 +52,6 @@ class _NoteCardState extends State<NoteCard> {
     );
   }
 
-  // Mengonversi DateTime ke teks relatif yang ramah pengguna.
-  // Contoh output: 'Hari ini', 'Kemarin', '3 hari lalu', atau '12/6/2025'
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
@@ -83,25 +67,29 @@ class _NoteCardState extends State<NoteCard> {
     final hasAudio = widget.note.hasAudio;
     final hasVideo = widget.note.hasVideo;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final borderColor = isDark
+        ? (_isHovered ? const Color(0xFF6366F1) : const Color(0xFF334155))
+        : (_isHovered ? Colors.indigo.shade200 : Colors.grey.shade200);
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isHovered ? Colors.indigo.shade200 : Colors.grey.shade100,
+            color: borderColor,
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: _isHovered
-                  ? Colors.indigo.shade900.withOpacity(0.08)
-                  : Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.03),
               blurRadius: _isHovered ? 20 : 8,
               offset: Offset(0, _isHovered ? 8 : 4),
             ),
@@ -113,19 +101,17 @@ class _NoteCardState extends State<NoteCard> {
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: widget.onTap,
-            splashColor: Colors.indigo.shade50,
-            highlightColor: Colors.indigo.shade50.withOpacity(0.5),
+            splashColor: Colors.indigo.withValues(alpha: 0.1),
+            highlightColor: Colors.indigo.withValues(alpha: 0.05),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Kolom yang berisi teks judul, potongan isi catatan, serta badge status.
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Bagian yang menampilkan judul utama catatan.
                         Text(
                           widget.note.title.isEmpty
                               ? 'Tanpa Judul'
@@ -133,13 +119,12 @@ class _NoteCardState extends State<NoteCard> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade900,
+                            color: isDark ? Colors.white : Colors.grey.shade900,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 6),
-                        // Cuplikan teks biasa (plain text) maksimal 3 baris dari isi catatan.
                         Text(
                           widget.note.plainTextContent.isEmpty
                               ? 'Pratinjau catatan kosong'
@@ -147,13 +132,12 @@ class _NoteCardState extends State<NoteCard> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.grey.shade600,
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                             fontSize: 13,
                             height: 1.4,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        // Barisan lencana (badge) indikator media dan tanggal pembuatan.
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
@@ -163,7 +147,7 @@ class _NoteCardState extends State<NoteCard> {
                               _formatDate(widget.note.createdAt),
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade400,
+                                color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -171,29 +155,28 @@ class _NoteCardState extends State<NoteCard> {
                               _buildBadge(
                                 icon: Icons.archive,
                                 label: 'Arsip',
-                                color: Colors.blueGrey.shade600,
-                                bgColor: Colors.blueGrey.shade50,
+                                color: isDark ? Colors.blueGrey.shade200 : Colors.blueGrey.shade700,
+                                bgColor: isDark ? const Color(0xFF334155) : Colors.blueGrey.shade50,
                               ),
                             if (hasAudio)
                               _buildBadge(
                                 icon: Icons.audiotrack,
                                 label: 'Audio',
-                                color: Colors.teal.shade700,
-                                bgColor: Colors.teal.shade50,
+                                color: isDark ? Colors.tealAccent.shade400 : Colors.teal.shade700,
+                                bgColor: isDark ? Colors.teal.shade900.withValues(alpha: 0.5) : Colors.teal.shade50,
                               ),
                             if (hasVideo)
                               _buildBadge(
                                 icon: Icons.video_library,
                                 label: 'Video',
-                                color: Colors.deepPurple.shade700,
-                                bgColor: Colors.deepPurple.shade50,
+                                color: isDark ? Colors.purpleAccent.shade100 : Colors.deepPurple.shade700,
+                                bgColor: isDark ? Colors.purple.shade900.withValues(alpha: 0.5) : Colors.deepPurple.shade50,
                               ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  // Thumbnail gambar. Ditampilkan di sisi kanan jika catatan memiliki elemen gambar.
                   if (hasImage) ...[
                     const SizedBox(width: 12),
                     ClipRRect(
@@ -201,7 +184,7 @@ class _NoteCardState extends State<NoteCard> {
                       child: Container(
                         width: 72,
                         height: 72,
-                        color: Colors.grey.shade100,
+                        color: isDark ? const Color(0xFF0F172A) : Colors.grey.shade100,
                         child: Image.network(
                           widget.note.firstImageUrl!,
                           fit: BoxFit.cover,
@@ -222,14 +205,13 @@ class _NoteCardState extends State<NoteCard> {
                             child: Icon(
                               Icons.broken_image_outlined,
                               size: 20,
-                              color: Colors.grey.shade400,
+                              color: Colors.grey.shade500,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ],
-                  // Tombol cepat untuk mengarsipkan atau mengembalikan catatan ke beranda utama.
                   const SizedBox(width: 8),
                   Column(
                     children: [
@@ -239,43 +221,40 @@ class _NoteCardState extends State<NoteCard> {
                               ? Icons.unarchive_rounded
                               : Icons.archive_rounded,
                           color: widget.note.isArchived
-                              ? Colors.indigo
-                              : Colors.grey.shade600,
+                              ? (isDark ? Colors.indigo.shade300 : Colors.indigo.shade600)
+                              : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                         ),
                         tooltip: widget.note.isArchived
                             ? 'Kembalikan dari Arsip'
                             : 'Arsipkan',
                         onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
                           try {
                             if (widget.note.isArchived) {
                               await noteService.unarchiveNote(widget.note.id);
                               if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Catatan dikembalikan dari arsip',
-                                  ),
-                                ),
+                              messenger.showSnackBar(
+                                const SnackBar(content: Text('Catatan dikembalikan dari arsip')),
                               );
                             } else {
-                              // Tampilkan dialog konfirmasi sebelum benar-benar memindahkan ke arsip,
-                              // untuk menghindari ketidaksengajaan saat mengklik ikon.
                               final confirm = await showDialog<bool>(
                                 context: context,
-                                builder: (context) => AlertDialog(
+                                builder: (dialogCtx) => AlertDialog(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                   title: const Text('Konfirmasi Arsip'),
-                                  content: const Text(
-                                    'Yakin ingin memindahkan catatan ini ke arsip?',
-                                  ),
+                                  content: const Text('Pindahkan catatan ini ke arsip?'),
                                   actions: [
                                     TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      child: const Text('Batal'),
+                                      onPressed: () => Navigator.pop(dialogCtx, false),
+                                      child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
                                     ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF6366F1),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      ),
+                                      onPressed: () => Navigator.pop(dialogCtx, true),
                                       child: const Text('Arsipkan'),
                                     ),
                                   ],
@@ -286,23 +265,17 @@ class _NoteCardState extends State<NoteCard> {
 
                               await noteService.archiveNote(widget.note.id);
                               if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Catatan dipindahkan ke arsip'),
-                                ),
+                              messenger.showSnackBar(
+                                const SnackBar(content: Text('Catatan dipindahkan ke arsip')),
                               );
                             }
 
                             widget.onArchiveToggle?.call();
-                            setState(() {});
+                            if (mounted) setState(() {});
                           } catch (e) {
                             if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Gagal mengubah status arsip: $e',
-                                ),
-                              ),
+                            messenger.showSnackBar(
+                              SnackBar(content: Text('Gagal mengubah status arsip: $e')),
                             );
                           }
                         },
