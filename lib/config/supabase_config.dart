@@ -1,4 +1,4 @@
 class SupabaseConfig {
-  static const supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-  static const supabaseAnonKey = 'YOUR_ANON_KEY';
+static const supabaseUrl = 'https://nnbeutcplrwhegvdyblg.supabase.co';
+static const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uYmV1dGNwbHJ3aGVndmR5YmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzgxMzAsImV4cCI6MjA5MTIxNDEzMH0.CNAsdw2fwkuA0yKNi8LnwlvvZ4ocERYZP_9_vyp0txg';
 }
