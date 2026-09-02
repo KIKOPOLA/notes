@@ -16,6 +16,15 @@ class NoteModel {
     required this.createdAt,
   });
 
+  Document cloneDocument() {
+    try {
+      final deltaOps = content.toDelta().toJson();
+      return Document.fromJson(List<dynamic>.from(deltaOps));
+    } catch (_) {
+      return Document();
+    }
+  }
+
   static List<dynamic> _ensureTrailingNewline(List<dynamic> ops) {
     if (ops.isEmpty) return [{'insert': '\n'}];
     final last = ops.last;

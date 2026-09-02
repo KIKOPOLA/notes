@@ -51,7 +51,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
       titleController.text = args.title;
       contentController.dispose();
       contentController = QuillController(
-        document: args.content,
+        document: args.cloneDocument(),
         selection: const TextSelection.collapsed(offset: 0),
       );
     }
@@ -86,7 +86,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     if (!selection.isValid ||
         selection.baseOffset < 0 ||
         selection.extentOffset < 0) {
-      return 0;
+      return contentController.document.length - 1;
     }
     return selection.baseOffset <= selection.extentOffset
         ? selection.baseOffset
@@ -201,31 +201,51 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   void _showImagePickerDialog() {
     showDialog(
       context: context,
-      builder: (dialogCtx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Pilih Sumber Gambar'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Kamera'),
-              onTap: () {
-                Navigator.pop(dialogCtx);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Galeri'),
-              onTap: () {
-                Navigator.pop(dialogCtx);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
-      ),
+      builder: (dialogCtx) {
+        final isDark = Theme.of(dialogCtx).brightness == Brightness.dark;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Pilih Sumber Gambar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.indigo.shade900.withValues(alpha: 0.3) : Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.camera_alt_rounded, color: isDark ? Colors.indigo.shade300 : Colors.indigo.shade700, size: 22),
+                ),
+                title: const Text('Kamera', style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('Ambil foto langsung dari kamera/webcam', style: TextStyle(fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(dialogCtx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.teal.shade900.withValues(alpha: 0.3) : Colors.teal.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.photo_library_rounded, color: isDark ? Colors.tealAccent : Colors.teal.shade700, size: 22),
+                ),
+                title: const Text('Galeri / File', style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('Pilih gambar dari penyimpanan perangkat', style: TextStyle(fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(dialogCtx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -549,21 +569,29 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
                 ),
                 onPressed: () async {
                   try {
-                    final compressedBytes = await FlutterImageCompress.compressWithList(
-                      imageBytes!,
-                      minWidth: maxWidth,
-                      minHeight: maxHeight,
-                      quality: quality,
-                    );
+                    Uint8List finalBytes = imageBytes!;
+                    if (!kIsWeb) {
+                      try {
+                        final compressedBytes = await FlutterImageCompress.compressWithList(
+                          finalBytes,
+                          minWidth: maxWidth,
+                          minHeight: maxHeight,
+                          quality: quality,
+                        );
+                        finalBytes = compressedBytes;
+                      } catch (_) {
+                        finalBytes = imageBytes;
+                      }
+                    }
                     if (!dialogCtx.mounted) return;
                     Navigator.pop(dialogCtx, {
-                      'image': compressedBytes,
+                      'image': finalBytes,
                       'quality': quality,
                     });
                   } catch (e) {
                     if (!dialogCtx.mounted) return;
                     ScaffoldMessenger.of(dialogCtx).showSnackBar(
-                      SnackBar(content: Text('Gagal resize gambar: $e')),
+                      SnackBar(content: Text('Gagal memproses gambar: $e')),
                     );
                   }
                 },
@@ -581,6 +609,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
     final borderColor = isDark ? const Color(0xFF334155) : Colors.grey.shade200;
+    final textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
 
     return Scaffold(
       appBar: AppBar(
@@ -692,8 +721,43 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
                     focusNode: _focusNode,
                     config: QuillEditorConfig(
                       scrollable: true,
-                      autoFocus: false,
+                      autoFocus: true,
                       showCursor: true,
+                      customStyles: DefaultStyles(
+                        paragraph: DefaultTextBlockStyle(
+                          TextStyle(
+                            color: textColor,
+                            fontSize: 15,
+                            height: 1.5,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                        h1: DefaultTextBlockStyle(
+                          TextStyle(
+                            color: textColor,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(8, 4),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                        h2: DefaultTextBlockStyle(
+                          TextStyle(
+                            color: textColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          const HorizontalSpacing(0, 0),
+                          const VerticalSpacing(6, 2),
+                          const VerticalSpacing(0, 0),
+                          null,
+                        ),
+                      ),
                       embedBuilders: [
                         ImageEmbedBuilder(),
                         VideoEmbedBuilder(),

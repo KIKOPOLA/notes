@@ -119,20 +119,21 @@ class NoteService {
       final user = supabase.auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
-      final fileNameWithTimestamp =
-          '${user.id}/${DateTime.now().millisecondsSinceEpoch}_$fileName';
+      final filePath = fileName.contains('/')
+          ? fileName
+          : '${user.id}/${DateTime.now().millisecondsSinceEpoch}_$fileName';
 
       await supabase.storage
           .from(_imageBucket)
           .uploadBinary(
-            fileNameWithTimestamp,
+            filePath,
             imageBytes,
             fileOptions: const FileOptions(upsert: true),
           );
 
       return supabase.storage
           .from(_imageBucket)
-          .getPublicUrl(fileNameWithTimestamp);
+          .getPublicUrl(filePath);
     } catch (e) {
       debugPrint('Error uploading resized image: $e');
       return null;

@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'home_page.dart';
 import 'login_page.dart';
 
-class LandingPage extends StatelessWidget {
+class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
   static const routeName = '/';
+
+  @override
+  State<LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  @override
+  void initState() {
+    super.initState();
+    _checkCurrentUser();
+  }
+
+  void _checkCurrentUser() {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, HomePage.routeName);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +134,12 @@ class LandingPage extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, LoginPage.routeName);
+                          final user = Supabase.instance.client.auth.currentUser;
+                          if (user != null) {
+                            Navigator.pushReplacementNamed(context, HomePage.routeName);
+                          } else {
+                            Navigator.pushNamed(context, LoginPage.routeName);
+                          }
                         },
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,

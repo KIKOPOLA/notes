@@ -1,13 +1,7 @@
-// Widget video yang dapat diubah ukurannya (resize) langsung di dalam editor catatan.
-// Menggabungkan VideoPlayer dengan antarmuka kustom yang mendukung pengubahan ukuran.
-// Widget ini mengontrol inisialisasi awal video dari URL jaringan, memantau state play/pause,
-// serta menyajikan tombol interaktif overlay (aspect_ratio) untuk menyesuaikan dimensi video.
-
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class ResizableVideoWidget extends StatefulWidget {
-  // URL publik video dari Supabase storage
   final String videoUrl;
 
   const ResizableVideoWidget({super.key, required this.videoUrl});
@@ -17,47 +11,68 @@ class ResizableVideoWidget extends StatefulWidget {
 }
 
 class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
-  late VideoPlayerController _controller; // Controller video dari package video_player
-  bool _initialized = false; // Menandai apakah video sudah selesai diinisialisasi
+  late VideoPlayerController _controller;
+  bool _initialized = false;
+  bool _hasError = false;
 
-  // Dimensi awal widget video di dalam editor
   double _width = 360;
   double _height = 220;
 
   @override
   void initState() {
     super.initState();
-    // Muat video dari URL jaringan dan tandai sebagai siap saat selesai
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
       ..initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _initialized = true;
-          });
-        }
+        if (mounted) setState(() => _initialized = true);
+      }).catchError((_) {
+        if (mounted) setState(() => _hasError = true);
       });
   }
 
   @override
   void dispose() {
-    // Bebaskan resource VideoPlayerController untuk mencegah kebocoran memori
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Tampilkan loading spinner selama video belum selesai diinisialisasi
+    if (_hasError) {
+      return Container(
+        width: _width,
+        height: _height,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade900,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.broken_image_rounded, color: Colors.grey, size: 32),
+              SizedBox(height: 8),
+              Text('Gagal memuat video', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (!_initialized) {
       return SizedBox(
         width: _width,
         height: _height,
-        child: const Center(child: CircularProgressIndicator()),
+        child: const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
       );
     }
 
     return GestureDetector(
-      // Tap pada area video untuk toggle antara play dan pause
       onTap: () {
         setState(() {
           if (_controller.value.isPlaying) {
@@ -74,12 +89,10 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade300),
         ),
-        clipBehavior: Clip.antiAlias, // Pastikan konten tidak keluar dari border radius
+        clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            VideoPlayer(_controller), // Widget inti yang merender frame video
-
-            // Ikon play ditampilkan di tengah hanya saat video sedang tidak diputar
+            VideoPlayer(_controller),
             if (!_controller.value.isPlaying)
               const Center(
                 child: Icon(
@@ -88,8 +101,6 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
                   size: 56,
                 ),
               ),
-
-            // Tombol resize di pojok kanan bawah — membuka dialog pengaturan dimensi
             Positioned(
               bottom: 8,
               right: 8,
@@ -115,53 +126,45 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
     );
   }
 
-  // Menampilkan dialog dengan dua slider untuk mengatur lebar dan tinggi video.
-  // Menggunakan StatefulBuilder agar perubahan slider langsung tercermin di dialog secara real-time.
   void _showResizeDialog() {
     showDialog<void>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Ubah Ukuran Video'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          title: const Text('Ubah Ukuran Video', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Slider untuk lebar video (200–800 px)
               Text('Lebar: ${_width.toInt()} px'),
               Slider(
                 value: _width,
                 min: 200,
                 max: 800,
                 divisions: 12,
-                onChanged: (value) {
-                  setState(() {
-                    _width = value;
-                  });
-                },
+                onChanged: (value) => setState(() => _width = value),
               ),
               const SizedBox(height: 12),
-              // Slider untuk tinggi video (150–600 px)
               Text('Tinggi: ${_height.toInt()} px'),
               Slider(
                 value: _height,
                 min: 150,
                 max: 600,
                 divisions: 9,
-                onChanged: (value) {
-                  setState(() {
-                    _height = value;
-                  });
-                },
+                onChanged: (value) => setState(() => _height = value),
               ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context), // Tutup tanpa menyimpan
-              child: const Text('Batal'),
+              onPressed: () => Navigator.pop(context),
+              child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context), // Simpan — state _width/_height sudah diperbarui
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () => Navigator.pop(context),
               child: const Text('Simpan'),
             ),
           ],

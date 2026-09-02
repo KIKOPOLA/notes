@@ -5,7 +5,6 @@ import 'resizable_video_widget.dart';
 import 'video_embed_player.dart';
 import '../audio_player_widget.dart';
 
-// Mendefinisikan struktur data khusus (BlockEmbed) untuk elemen audio di dalam teks.
 class AudioBlockEmbed extends BlockEmbed {
   const AudioBlockEmbed(super.type, super.data);
 
@@ -16,7 +15,6 @@ class AudioBlockEmbed extends BlockEmbed {
   }
 }
 
-// Menangani cara aplikasi merender elemen gambar (Image) di layar editor maupun mode baca.
 class ImageEmbedBuilder extends EmbedBuilder {
   final bool isReadOnly;
 
@@ -29,7 +27,8 @@ class ImageEmbedBuilder extends EmbedBuilder {
   Widget build(BuildContext context, EmbedContext embedContext) {
     final imageUrl = embedContext.node.value.data;
     if (isReadOnly) {
-      return Center(
+      return Align(
+        alignment: Alignment.centerLeft,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Image.network(
@@ -37,12 +36,20 @@ class ImageEmbedBuilder extends EmbedBuilder {
             fit: BoxFit.contain,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
+              return const SizedBox(
+                width: 24,
+                height: 24,
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              );
             },
             errorBuilder: (context, error, stackTrace) {
               return Container(
                 height: 100,
-                color: Colors.grey[300],
+                width: 150,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: const Center(
                   child: Icon(Icons.broken_image, color: Colors.grey),
                 ),
@@ -52,7 +59,8 @@ class ImageEmbedBuilder extends EmbedBuilder {
         ),
       );
     } else {
-      return Center(
+      return Align(
+        alignment: Alignment.centerLeft,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: ResizableImageWidget(imageUrl: imageUrl),
@@ -62,7 +70,6 @@ class ImageEmbedBuilder extends EmbedBuilder {
   }
 }
 
-// Memproses dan merender objek video di dalam QuillEditor.
 class VideoEmbedBuilder extends EmbedBuilder {
   final bool isReadOnly;
 
@@ -75,7 +82,8 @@ class VideoEmbedBuilder extends EmbedBuilder {
   Widget build(BuildContext context, EmbedContext embedContext) {
     final videoUrl = embedContext.node.value.data as String;
     if (isReadOnly) {
-      return Center(
+      return Align(
+        alignment: Alignment.centerLeft,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Container(
@@ -89,7 +97,8 @@ class VideoEmbedBuilder extends EmbedBuilder {
         ),
       );
     } else {
-      return Center(
+      return Align(
+        alignment: Alignment.centerLeft,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: ResizableVideoWidget(videoUrl: videoUrl),
@@ -99,7 +108,6 @@ class VideoEmbedBuilder extends EmbedBuilder {
   }
 }
 
-// Memproses dan merender objek audio di dalam QuillEditor.
 class AudioEmbedBuilder extends EmbedBuilder {
   @override
   String get key => 'audio';
@@ -107,7 +115,8 @@ class AudioEmbedBuilder extends EmbedBuilder {
   @override
   Widget build(BuildContext context, EmbedContext embedContext) {
     final audioUrl = embedContext.node.value.data as String;
-    return Center(
+    return Align(
+      alignment: Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 450),
         child: Padding(

@@ -10,6 +10,6 @@ void main() {
     // Verify that landing page is shown
     expect(find.text('NOTES'), findsWidgets);
     expect(find.text('Minimal. Powerful. Yours.'), findsOneWidget);
-    expect(find.text('Mulai'), findsOneWidget);
+    expect(find.text('Mulai Sekarang'), findsOneWidget);
   });
 }

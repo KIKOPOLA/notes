@@ -1,13 +1,7 @@
-// Widget player video yang digunakan di mode baca (read-only) pada NoteViewerPage.
-// Berbeda dari ResizableVideoWidget, widget ini tidak memiliki fitur resize —
-// ukurannya menyesuaikan rasio aspek asli video (aspect ratio) secara otomatis.
-// Pengguna dapat menekan video untuk play atau pause.
-
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoEmbedPlayer extends StatefulWidget {
-  // URL publik video yang akan diputar dari jaringan (Supabase storage)
   final String url;
 
   const VideoEmbedPlayer({super.key, required this.url});
@@ -17,43 +11,67 @@ class VideoEmbedPlayer extends StatefulWidget {
 }
 
 class _VideoEmbedPlayerState extends State<VideoEmbedPlayer> {
-  late VideoPlayerController _controller; // Controller yang mengelola pemutaran video
-  bool _initialized = false; // Flag untuk menandai apakah video sudah siap diputar
+  late VideoPlayerController _controller;
+  bool _initialized = false;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    // Inisialisasi controller dengan URL video dari jaringan,
-    // lalu perbarui state ketika video sudah siap (initialized)
+    _initVideo();
+  }
+
+  void _initVideo() {
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
       ..initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _initialized = true;
-          });
-        }
+        if (mounted) setState(() => _initialized = true);
+      }).catchError((_) {
+        if (mounted) setState(() => _hasError = true);
       });
   }
 
   @override
   void dispose() {
-    // Bebaskan resource VideoPlayerController agar tidak terjadi kebocoran memori
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Tampilkan indikator loading selama video belum selesai diinisialisasi
+    if (_hasError) {
+      return Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade900,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.broken_image_rounded, color: Colors.grey, size: 32),
+              SizedBox(height: 8),
+              Text('Gagal memuat video', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (!_initialized) {
       return const SizedBox(
         height: 220,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
       );
     }
 
     return GestureDetector(
-      // Tap pada video untuk toggle antara play dan pause
       onTap: () {
         setState(() {
           if (_controller.value.isPlaying) {
@@ -64,13 +82,11 @@ class _VideoEmbedPlayerState extends State<VideoEmbedPlayer> {
         });
       },
       child: AspectRatio(
-        // Gunakan rasio aspek asli video agar tidak terdistorsi
         aspectRatio: _controller.value.aspectRatio,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            VideoPlayer(_controller), // Widget inti yang merender frame video
-            // Ikon play ditampilkan di tengah layar hanya ketika video sedang tidak diputar
+            VideoPlayer(_controller),
             if (!_controller.value.isPlaying)
               const Icon(Icons.play_circle_fill, color: Colors.white, size: 56),
           ],

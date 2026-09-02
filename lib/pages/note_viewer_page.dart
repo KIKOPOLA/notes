@@ -25,7 +25,7 @@ class _NoteViewerPageState extends State<NoteViewerPage> {
     if (args is NoteModel && note == null) {
       note = args;
       _controller = QuillController(
-        document: note!.content,
+        document: args.cloneDocument(),
         selection: const TextSelection.collapsed(offset: 0),
         readOnly: true,
       );
@@ -64,6 +64,7 @@ class _NoteViewerPageState extends State<NoteViewerPage> {
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
 
     return Scaffold(
       appBar: AppBar(
@@ -109,21 +110,57 @@ class _NoteViewerPageState extends State<NoteViewerPage> {
                 style: TextStyle(fontSize: 13, color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
               ),
               const SizedBox(height: 20),
-              QuillEditor(
-                controller: _controller!,
-                scrollController: _scrollController,
-                focusNode: _focusNode,
-                config: QuillEditorConfig(
-                  scrollable: false,
-                  autoFocus: false,
-                  showCursor: false,
-                  embedBuilders: [
-                    ImageEmbedBuilder(isReadOnly: true),
-                    VideoEmbedBuilder(isReadOnly: true),
-                    AudioEmbedBuilder(),
-                  ],
+              if (_controller != null)
+                QuillEditor(
+                  controller: _controller!,
+                  scrollController: _scrollController,
+                  focusNode: _focusNode,
+                  config: QuillEditorConfig(
+                    scrollable: false,
+                    autoFocus: false,
+                    showCursor: false,
+                    customStyles: DefaultStyles(
+                      paragraph: DefaultTextBlockStyle(
+                        TextStyle(
+                          color: textColor,
+                          fontSize: 15,
+                          height: 1.5,
+                        ),
+                        const HorizontalSpacing(0, 0),
+                        const VerticalSpacing(0, 0),
+                        const VerticalSpacing(0, 0),
+                        null,
+                      ),
+                      h1: DefaultTextBlockStyle(
+                        TextStyle(
+                          color: textColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        const HorizontalSpacing(0, 0),
+                        const VerticalSpacing(8, 4),
+                        const VerticalSpacing(0, 0),
+                        null,
+                      ),
+                      h2: DefaultTextBlockStyle(
+                        TextStyle(
+                          color: textColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        const HorizontalSpacing(0, 0),
+                        const VerticalSpacing(6, 2),
+                        const VerticalSpacing(0, 0),
+                        null,
+                      ),
+                    ),
+                    embedBuilders: [
+                      ImageEmbedBuilder(isReadOnly: true),
+                      VideoEmbedBuilder(isReadOnly: true),
+                      AudioEmbedBuilder(),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),
