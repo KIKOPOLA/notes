@@ -23,7 +23,15 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
       ..initialize().then((_) {
-        if (mounted) setState(() => _initialized = true);
+        if (mounted) {
+          final aspect = _controller.value.aspectRatio;
+          setState(() {
+            _initialized = true;
+            if (aspect > 0) {
+              _height = (_width / aspect).clamp(150.0, 600.0);
+            }
+          });
+        }
       }).catchError((_) {
         if (mounted) setState(() => _hasError = true);
       });
@@ -37,13 +45,17 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? const Color(0xFF334155) : Colors.grey.shade300;
+
     if (_hasError) {
       return Container(
         width: _width,
         height: _height,
         decoration: BoxDecoration(
-          color: Colors.grey.shade900,
+          color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade900,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
         ),
         child: const Center(
           child: Column(
@@ -59,9 +71,13 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
     }
 
     if (!_initialized) {
-      return SizedBox(
+      return Container(
         width: _width,
         height: _height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
+        ),
         child: const Center(
           child: SizedBox(
             width: 24,
@@ -87,12 +103,21 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
         height: _height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: borderColor),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
+          fit: StackFit.expand,
           children: [
-            VideoPlayer(_controller),
+            FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _controller.value.size.width > 0 ? _controller.value.size.width : _width,
+                height: _controller.value.size.height > 0 ? _controller.value.size.height : _height,
+                child: VideoPlayer(_controller),
+              ),
+            ),
             if (!_controller.value.isPlaying)
               const Center(
                 child: Icon(
@@ -127,44 +152,52 @@ class _ResizableVideoWidgetState extends State<ResizableVideoWidget> {
   }
 
   void _showResizeDialog() {
+    double tempWidth = _width;
+    double tempHeight = _height;
     showDialog<void>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           title: const Text('Ubah Ukuran Video', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lebar: ${_width.toInt()} px'),
+              Text('Lebar: ${tempWidth.toInt()} px'),
               Slider(
-                value: _width,
+                value: tempWidth,
                 min: 200,
                 max: 800,
                 divisions: 12,
-                onChanged: (value) => setState(() => _width = value),
+                onChanged: (val) => setDialogState(() => tempWidth = val),
               ),
               const SizedBox(height: 12),
-              Text('Tinggi: ${_height.toInt()} px'),
+              Text('Tinggi: ${tempHeight.toInt()} px'),
               Slider(
-                value: _height,
+                value: tempHeight,
                 min: 150,
                 max: 600,
                 divisions: 9,
-                onChanged: (value) => setState(() => _height = value),
+                onChanged: (val) => setDialogState(() => tempHeight = val),
               ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                setState(() {
+                  _width = tempWidth;
+                  _height = tempHeight;
+                });
+                Navigator.pop(dialogCtx);
+              },
               child: const Text('Simpan'),
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../widgets/app_logo.dart';
 import 'home_page.dart';
 import 'login_page.dart';
 
@@ -54,18 +55,7 @@ class _LandingPageState extends State<LandingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.note_alt_rounded,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ),
+                    const AppLogo(size: 58, borderRadius: 16),
                     const SizedBox(height: 24),
                     const Text(
                       'NOTES',

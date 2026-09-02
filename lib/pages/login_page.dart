@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_logo.dart';
 import '../services/auth_service.dart';
 import 'home_page.dart';
 import 'register_page.dart';
@@ -68,26 +69,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: borderColor),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.indigo.withValues(alpha: isDark ? 0.3 : 0.1),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.lock_person_rounded,
-                      color: isDark ? const Color(0xFF818CF8) : Colors.indigo.shade600,
-                      size: 38,
-                    ),
-                  ),
+                  const AppLogo(size: 72, borderRadius: 20),
                   const SizedBox(height: 20),
                   Text(
                     "Selamat Datang",

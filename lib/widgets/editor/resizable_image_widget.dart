@@ -15,19 +15,23 @@ class _ResizableImageWidgetState extends State<ResizableImageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? const Color(0xFF334155) : Colors.grey.shade300;
+
     return GestureDetector(
       onTap: () => _showResizeDialog(context),
       child: Container(
         width: _width,
         height: _height,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          border: Border.all(color: borderColor, width: 1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Stack(
+          fit: StackFit.expand,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(9),
               child: Image.network(
                 widget.imageUrl,
                 width: _width,
@@ -45,7 +49,7 @@ class _ResizableImageWidgetState extends State<ResizableImageWidget> {
                 },
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Colors.grey.shade200,
+                    color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade200,
                     child: const Center(
                       child: Icon(Icons.broken_image, color: Colors.grey),
                     ),
@@ -76,44 +80,52 @@ class _ResizableImageWidgetState extends State<ResizableImageWidget> {
   }
 
   void _showResizeDialog(BuildContext context) {
+    double tempWidth = _width;
+    double tempHeight = _height;
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           title: const Text('Ubah Ukuran Gambar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lebar: ${_width.toInt()} px'),
+              Text('Lebar: ${tempWidth.toInt()} px'),
               Slider(
-                value: _width,
+                value: tempWidth,
                 min: 100,
                 max: 800,
                 divisions: 14,
-                onChanged: (value) => setState(() => _width = value),
+                onChanged: (val) => setDialogState(() => tempWidth = val),
               ),
               const SizedBox(height: 12),
-              Text('Tinggi: ${_height.toInt()} px'),
+              Text('Tinggi: ${tempHeight.toInt()} px'),
               Slider(
-                value: _height,
+                value: tempHeight,
                 min: 100,
                 max: 800,
                 divisions: 14,
-                onChanged: (value) => setState(() => _height = value),
+                onChanged: (val) => setDialogState(() => tempHeight = val),
               ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                setState(() {
+                  _width = tempWidth;
+                  _height = tempHeight;
+                });
+                Navigator.pop(dialogCtx);
+              },
               child: const Text('Simpan'),
             ),
           ],

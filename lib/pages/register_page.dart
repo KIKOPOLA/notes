@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../widgets/app_logo.dart';
 import '../services/auth_service.dart';
 import 'login_page.dart';
 
@@ -90,25 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF6366F1) : Colors.indigo.shade600,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.indigo.withValues(alpha: isDark ? 0.4 : 0.3),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.person_add_rounded,
-                      color: Colors.white,
-                      size: 38,
-                    ),
-                  ),
+                  const AppLogo(size: 72, borderRadius: 20),
                   const SizedBox(height: 20),
                   Text(
                     'Buat Akun Baru',

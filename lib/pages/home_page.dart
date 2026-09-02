@@ -3,6 +3,7 @@ import '../config/theme_manager.dart';
 import '../services/auth_service.dart';
 import '../services/note_service.dart';
 import '../models/note_model.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/note_grid_list.dart';
 import '../widgets/empty_state_widget.dart';
 import 'archive_page.dart';
@@ -71,27 +72,35 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              Text(
-                                _getGreeting(),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
-                                  letterSpacing: 0.5,
-                                ),
+                              const Padding(
+                                padding: EdgeInsets.only(right: 12),
+                                child: AppLogo(size: 44, borderRadius: 12),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Catatan Saya',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.grey.shade900,
-                                  letterSpacing: -0.5,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _getGreeting(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Catatan Saya',
+                                    style: TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? Colors.white : Colors.grey.shade900,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
