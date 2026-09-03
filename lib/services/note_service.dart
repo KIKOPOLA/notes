@@ -140,6 +140,13 @@ class NoteService {
     }
   }
 
+  static const _videoExtensions = {
+    'mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v'
+  };
+
+  static bool isVideoExtension(String? ext) =>
+      _videoExtensions.contains(ext?.toLowerCase());
+
   Future<Map<String, String>?> uploadFile(PlatformFile file) async {
     try {
       final user = supabase.auth.currentUser;
@@ -148,19 +155,15 @@ class NoteService {
       final fileName =
           '${user.id}/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
 
-      Uint8List fileBytes;
+      Uint8List? fileBytes;
       if (kIsWeb) {
-        if (file.bytes == null) return null;
-        fileBytes = file.bytes!;
-      } else {
-        if (file.path == null) return null;
+        fileBytes = file.bytes;
+      } else if (file.path != null) {
         fileBytes = await File(file.path!).readAsBytes();
       }
+      if (fileBytes == null) return null;
 
-      final extension = file.extension?.toLowerCase();
-      final isVideo = [
-        'mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v'
-      ].contains(extension);
+      final isVideo = isVideoExtension(file.extension);
       final bucket = isVideo ? _videoBucket : _audioBucket;
 
       await supabase.storage
@@ -251,12 +254,7 @@ class NoteService {
       final filePath = result['path'];
       if (url == null || filePath == null) return null;
 
-      final extension = file.extension?.toLowerCase();
-      final isVideo = [
-        'mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v'
-      ].contains(extension);
-      final mediaType = isVideo ? 'video' : 'audio';
-
+      final mediaType = isVideoExtension(file.extension) ? 'video' : 'audio';
       final duration = await getMediaDuration(file, mediaType);
 
       await insertMedia(
@@ -273,3 +271,4 @@ class NoteService {
     return null;
   }
 }
+

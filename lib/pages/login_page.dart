@@ -58,6 +58,14 @@ class _LoginPageState extends State<LoginPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
     final borderColor = isDark ? const Color(0xFF334155) : Colors.grey.shade200;
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: borderColor),
+    );
+    final focusedInputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -111,18 +119,9 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: InputDecoration(
                             labelText: "Email",
                             prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
-                            ),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: focusedInputBorder,
                             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                           ),
                         ),
@@ -140,22 +139,14 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               onPressed: () => setState(() => obscurePassword = !obscurePassword),
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
-                            ),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: focusedInputBorder,
                             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                           ),
                         ),
                         const SizedBox(height: 24),
+
                         SizedBox(
                           width: double.infinity,
                           height: 52,

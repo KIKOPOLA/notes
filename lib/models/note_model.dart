@@ -97,50 +97,24 @@ class NoteModel {
     };
   }
 
-  String get plainTextContent => content.toPlainText().trim();
-
-  String? get firstImageUrl {
+  Map<String, dynamic>? _findEmbed(String key) {
     try {
-      final deltaJson = content.toDelta().toJson();
-      for (final op in deltaJson) {
-        if (op.containsKey('insert')) {
-          final insert = op['insert'];
-          if (insert is Map && insert.containsKey('image')) {
-            return insert['image'] as String?;
-          }
+      for (final op in content.toDelta().toJson()) {
+        final insert = op['insert'];
+        if (insert is Map && insert.containsKey(key)) {
+          return insert.cast<String, dynamic>();
         }
       }
     } catch (_) {}
     return null;
   }
 
-  bool get hasAudio {
-    try {
-      final deltaJson = content.toDelta().toJson();
-      for (final op in deltaJson) {
-        if (op.containsKey('insert')) {
-          final insert = op['insert'];
-          if (insert is Map && insert.containsKey('audio')) {
-            return true;
-          }
-        }
-      }
-    } catch (_) {}
-    return false;
-  }
+  String get plainTextContent => content.toPlainText().trim();
 
-  bool get hasVideo {
-    try {
-      final deltaJson = content.toDelta().toJson();
-      for (final op in deltaJson) {
-        if (op.containsKey('insert')) {
-          final insert = op['insert'];
-          if (insert is Map && insert.containsKey('video')) {
-            return true;
-          }
-        }
-      }
-    } catch (_) {}
-    return false;
-  }
+  String? get firstImageUrl => _findEmbed('image')?['image'] as String?;
+
+  bool get hasAudio => _findEmbed('audio') != null;
+
+  bool get hasVideo => _findEmbed('video') != null;
 }
+

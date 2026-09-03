@@ -65,6 +65,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inputBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(16));
 
     return Scaffold(
       appBar: AppBar(
@@ -120,7 +121,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           icon: Icon(_obscureOld ? Icons.visibility_off : Icons.visibility),
                           onPressed: () => setState(() => _obscureOld = !_obscureOld),
                         ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: inputBorder,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                       validator: (value) {
@@ -139,7 +140,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           icon: Icon(_obscureNew ? Icons.visibility_off : Icons.visibility),
                           onPressed: () => setState(() => _obscureNew = !_obscureNew),
                         ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: inputBorder,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                       validator: (value) {
@@ -159,7 +160,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility),
                           onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
                         ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: inputBorder,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                       validator: (value) {
@@ -173,6 +174,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isDark ? const Color(0xFF6366F1) : const Color(0xFF4F46E5),
+
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           elevation: 0,

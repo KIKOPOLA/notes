@@ -80,6 +80,14 @@ class _RegisterPageState extends State<RegisterPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
     final borderColor = isDark ? const Color(0xFF334155) : Colors.grey.shade200;
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: borderColor),
+    );
+    final focusedInputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -132,18 +140,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           decoration: InputDecoration(
                             labelText: 'Nama Lengkap',
                             prefixIcon: const Icon(Icons.person_outline),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
-                            ),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: focusedInputBorder,
                             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                           ),
                         ),
@@ -154,18 +153,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           decoration: InputDecoration(
                             labelText: 'Email',
                             prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
-                            ),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: focusedInputBorder,
                             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                           ),
                         ),
@@ -183,18 +173,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               onPressed: () => setState(() => obscurePassword = !obscurePassword),
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
-                            ),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: focusedInputBorder,
                             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                           ),
                         ),
@@ -212,18 +193,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               onPressed: () => setState(() => obscureConfirmPassword = !obscureConfirmPassword),
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: isDark ? const Color(0xFF818CF8) : Colors.indigo, width: 1.5),
-                            ),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: focusedInputBorder,
                             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                           ),
                         ),
@@ -233,6 +205,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           height: 52,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
+
                               backgroundColor: isDark ? const Color(0xFF6366F1) : const Color(0xFF4F46E5),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
